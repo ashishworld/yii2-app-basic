@@ -1,17 +1,11 @@
 version: "3.8"
 
 services:
-  yii2app:
+  yii2:
     image: ashishworld/yii2-app:latest
-    ports:
-      - "8080:80"
     deploy:
       replicas: 1
       restart_policy:
         condition: on-failure
-    networks:
-      - yii2net
-
-networks:
-  yii2net:
-    driver: overlay
+    ports:
+      - "8080:80"
