@@ -1,5 +1,5 @@
-# Inside Dockerfile
-FROM php:8.1-apache
+# Dockerfile
+FROM php:8.1-fpm
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -18,7 +18,6 @@ COPY . .
 # Install PHP dependencies
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
-# Expose port
-EXPOSE 80
+EXPOSE 9000
 
-CMD ["apache2-foreground"]
+CMD ["php-fpm"]
