@@ -31,7 +31,7 @@ jobs:
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ubuntu
-        key: ${{ secrets.EC2_KEY }}
+        key: ${{ secrets.EC2_SSH_KEY }}
         script: |
           docker pull ashishworld/yii2-app:latest
-          docker stack deploy -c /home/ubuntu/docker-compose.yml yii2app
+          docker stack deploy -c /home/ubuntu/yii2-app/docker-compose.yml yii2app
