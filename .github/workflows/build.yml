@@ -1,0 +1,4 @@
+strategy:
+  matrix:
+    os: [ubuntu-latest]
+    php: ["8.0"]
