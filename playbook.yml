@@ -1,40 +1,18 @@
-- name: Setup Yii2 Docker Swarm Environment
-  hosts: web
+- hosts: web
   become: yes
   tasks:
-    - name: Install dependencies
+    - name: Install required packages
       apt:
         name:
           - docker.io
           - nginx
+          - php8.1
+          - php8.1-fpm
           - git
-          - php
-          - php-mysql
         update_cache: yes
 
-    - name: Add user to docker group
-      user:
-        name: ubuntu
-        groups: docker
-        append: yes
-
-    - name: Initialize Docker Swarm
-      command: docker swarm init --advertise-addr {{ ansible_host }}
-      ignore_errors: yes
-
-    - name: Copy NGINX config
-      copy:
-        src: nginx/yii2
-        dest: /etc/nginx/sites-available/yii2
-
-    - name: Enable NGINX site
-      file:
-        src: /etc/nginx/sites-available/yii2
-        dest: /etc/nginx/sites-enabled/yii2
-        state: link
-        force: yes
-
-    - name: Reload NGINX
-      service:
-        name: nginx
-        state: restarted
+    - name: Start docker
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
