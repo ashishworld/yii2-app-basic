@@ -1,21 +1,24 @@
+# Inside Dockerfile
 FROM php:8.1-apache
 
-# Install PHP extensions
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    libzip-dev zip unzip git libonig-dev \
+    git unzip zip libzip-dev libpng-dev libonig-dev libxml2-dev curl \
     && docker-php-ext-install pdo pdo_mysql zip
 
-# Enable Apache Rewrite
-RUN a2enmod rewrite
+# Install Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Set working directory
 WORKDIR /var/www/html
 
 # Copy app files
-COPY . /var/www/html
+COPY . .
 
-# Set proper permissions
-RUN chown -R www-data:www-data /var/www/html
+# Install PHP dependencies
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
-# Apache config for Yii2 (override default)
-RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/web|' /etc/apache2/sites-enabled/000-default.conf
+# Expose port
+EXPOSE 8080
+
+CMD ["apache2-foreground"]
