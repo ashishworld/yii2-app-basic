@@ -27,7 +27,7 @@
     - name: Copy docker-compose file
       copy:
         src: ./docker-compose.yml
-        dest: /home/ubuntu/docker-compose.yml
+        dest: /home/ubuntu/yii2-app/docker-compose.yml
 
     - name: Deploy Docker stack
-      shell: docker stack deploy -c /home/ubuntu/docker-compose.yml yii2app
+      shell: docker stack deploy -c /home/ubuntu/yii2-app/docker-compose.yml yii2app
