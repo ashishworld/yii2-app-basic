@@ -1,33 +1,39 @@
 - hosts: web
   become: yes
   tasks:
-    - name: Install required packages
+    - name: Install Docker, NGINX, Git
       apt:
         name:
           - docker.io
-          - docker-compose
           - nginx
           - git
-          - php8.1-fpm
         update_cache: yes
 
-    - name: Start Docker and PHP-FPM
+    - name: Enable and start Docker
       systemd:
-        name: "{{ item }}"
-        enabled: yes
+        name: docker
+        enabled: true
         state: started
-      loop:
-        - docker
-        - php8.1-fpm
 
     - name: Initialize Docker Swarm
       shell: docker swarm init
-      ignore_errors: true
+      ignore_errors: yes
 
-    - name: Copy docker-compose file
+    - name: Copy NGINX config
       copy:
-        src: ./docker-compose.yml
-        dest: /home/ubuntu/yii2-app/docker-compose.yml
+        src: ./nginx/yii2
+        dest: /etc/nginx/sites-available/yii2
+        mode: 0644
 
-    - name: Deploy Docker stack
+    - name: Enable NGINX config
+      file:
+        src: /etc/nginx/sites-available/yii2
+        dest: /etc/nginx/sites-enabled/yii2
+        state: link
+        force: yes
+
+    - name: Reload NGINX
+      shell: nginx -t && systemctl reload nginx
+
+    - name: Deploy Yii2 Stack
       shell: docker stack deploy -c /home/ubuntu/yii2-app/docker-compose.yml yii2app
