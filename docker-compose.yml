@@ -3,7 +3,7 @@ services:
   app:
     image: ashishworld/yii2-app:latest
     ports:
-      - "8080:80"
+      - "80:80"   # Changed to expose port 80 to Nginx
     networks:
       - yii2net
 

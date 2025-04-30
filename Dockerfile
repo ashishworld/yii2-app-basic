@@ -19,6 +19,6 @@ COPY . .
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
 # Expose port
-EXPOSE 8080
+EXPOSE 80
 
 CMD ["apache2-foreground"]

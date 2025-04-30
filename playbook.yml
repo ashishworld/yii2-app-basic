@@ -1,18 +1,69 @@
 - hosts: web
   become: yes
   tasks:
+    # Install necessary packages
     - name: Install required packages
       apt:
         name:
           - docker.io
+          - docker-compose
           - nginx
-          - php8.1
-          - php8.1-fpm
           - git
+          - php8.1-cli   # Optional: if PHP CLI is needed
         update_cache: yes
 
-    - name: Start docker
+    # Ensure Docker is started and enabled
+    - name: Start Docker service
       systemd:
         name: docker
         enabled: yes
         state: started
+
+    # Install Nginx
+    - name: Start Nginx service
+      systemd:
+        name: nginx
+        enabled: yes
+        state: started
+
+    # Initialize Docker Swarm
+    - name: Initialize Docker Swarm
+      command: docker swarm init
+      ignore_errors: yes  # If already initialized
+
+    # Copy the Nginx configuration file
+    - name: Copy Nginx config
+      copy:
+        src: ./nginx/sites-available/yii2  # Ensure this path is correct on your local machine
+        dest: /etc/nginx/sites-available/yii2
+        owner: root
+        group: root
+        mode: '0644'
+
+    # Create symbolic link for Nginx sites-enabled
+    - name: Enable Nginx site config
+      command: nginx -s reload
+      notify:
+        - Reload Nginx
+
+    # Clone the repository (if not already)
+    - name: Clone Yii2 repository
+      git:
+        repo: 'https://github.com/ashishworld/yii2-app.git'  # Update with your repository
+        dest: /var/www/html
+        version: master
+
+    # Deploy the application as a Swarm service
+    - name: Deploy Docker Swarm service
+      docker_swarm_service:
+        name: yii2-app
+        image: ashishworld/yii2-app:latest
+        published_port: 80
+        mode: replicated
+        replicas: 1
+
+    handlers:
+      - name: Reload Nginx
+        systemd:
+          name: nginx
+          state: reloaded

@@ -1,4 +1,4 @@
-name: Build, Push and Deploy Docker Image
+name: Build and Deploy Docker Image
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,15 +22,15 @@ jobs:
     - name: Build Docker image
       run: docker build -t ashishworld/yii2-app:latest .
 
-    - name: Push Docker image
+    - name: Push to DockerHub
       run: docker push ashishworld/yii2-app:latest
 
-    - name: Deploy to EC2 via SSH
-      uses: appleboy/ssh-action@v0.1.10
+    - name: SSH into EC2 and deploy service
+      uses: appleboy/ssh-action@v0.1.5
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
           docker pull ashishworld/yii2-app:latest
-          docker stack deploy -c /home/ubuntu/yii2-app/docker-compose.yml yii2app
+          docker service update --image ashishworld/yii2-app:latest yii2-app
